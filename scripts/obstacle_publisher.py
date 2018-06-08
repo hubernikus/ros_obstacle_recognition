@@ -9,6 +9,7 @@ obstacle publisher class
 '''
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 import rospy
 from geometry_msgs.msg import PolygonStamped, Point32
@@ -47,8 +48,17 @@ class obstaclePublisher():
         fig = plt.figure()
 
         ax_3d = fig.add_subplot(111, projection='3d')
+        print('x_obs_0', self.x_obs[0])
+        print('x_obs_1', self.x_obs[1])
+        print('x_obs_1', self.x_obs[1])
+        ax_3d.plot([self.x_obs[i][0] for i in range(len(self.x_obs))],
+                           [self.x_obs[i][1] for i in range(len(self.x_obs))],
+                           [self.x_obs[i][2] for i in range(len(self.x_obs))])
+        ax_3d.plot_surface([self.x_obs[i][0] for i in range(len(self.x_obs))],
+                           [self.x_obs[i][1] for i in range(len(self.x_obs))],
+                           [self.x_obs[i][2] for i in range(len(self.x_obs))])
 
-        #ax_3d.plot_surface(self.x_obs[0,:], self.x_obs[1,:], self.x_obs[2,:])
+        plt.show()
 
         # Enter main loop
         while False: #not rospy.is_shutdown():
