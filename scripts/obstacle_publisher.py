@@ -11,8 +11,9 @@ obstacle publisher class
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-import rospy
-from geometry_msgs.msg import PolygonStamped, Point32
+#import rospy
+#from geometry_msgs.msg import PolygonStamped, Point32
+from matplotlib.patches import Polygon
 
 import numpy as np
 from math import pi, floor
@@ -20,7 +21,7 @@ from math import pi, floor
 import warnings
 
 class obstaclePublisher():
-    def __init__(self, a=[1,2,1], p=[1,1,1], x0=[0,0,0], th_r=[0,0,0], sf=1, sigma=1):
+    def __init__(self, a=[1,1,4], p=[1,1,1], x0=[0,0,0], th_r=[0,2,0], sf=1, sigma=1):
         # Initialize variables
         self.a=a
         self.p = p
@@ -39,11 +40,11 @@ class obstaclePublisher():
         self.draw_ellipsoid_centered()
 
         # Initialize node
-        rospy.init_node('ellipse_publisher', anonymous=True)
-        rate = rospy.Rate(3) # Frequency
+        #rospy.init_node('ellipse_publisher', anonymous=True)
+        #rate = rospy.Rate(3) # Frequency
 
         # Create publishers
-        elli_pub = rospy.Publisher('ellipse_out', PolygonStamped, queue_size=10)
+        #elli_pub = rospy.Publisher('ellipse_out', PolygonStamped, queue_size=10)
 
         fig = plt.figure()
 
@@ -51,13 +52,23 @@ class obstaclePublisher():
         print('x_obs_0', self.x_obs[0])
         print('x_obs_1', self.x_obs[1])
         print('x_obs_1', self.x_obs[1])
-        ax_3d.plot([self.x_obs[i][0] for i in range(len(self.x_obs))],
-                           [self.x_obs[i][1] for i in range(len(self.x_obs))],
-                           [self.x_obs[i][2] for i in range(len(self.x_obs))])
-        ax_3d.plot_surface([self.x_obs[i][0] for i in range(len(self.x_obs))],
-                           [self.x_obs[i][1] for i in range(len(self.x_obs))],
-                           [self.x_obs[i][2] for i in range(len(self.x_obs))])
+        #ax_3d.plot([self.x_obs[i][0] for i in range(len(self.x_obs))],
+        #[self.x_obs[i][1] for i in range(len(self.x_obs))],
+        #[self.x_obs[i][2] for i in range(len(self.x_obs))])
+        #ax_3d.plot_surface([self.x_obs[i][0] for i in range(len(self.x_obs))],
+                           #[self.x_obs[i][1] for i in range(len(self.x_obs))],
+                           #[self.x_obs[i][2] for i in range(len(self.x_obs))])
 
+        ax_3d.plot_surface(np.reshape([self.x_obs[i][0] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+                           np.reshape([self.x_obs[i][1] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+                           np.reshape([self.x_obs[i][2] for i in range(len(self.x_obs))], (self.numPoints,-1)), alpha=0.4 )
+        
+        ax_3d.set_xlabel('x1')
+        ax_3d.set_ylabel('x2')
+        ax_3d.set_zlabel('x3')
+
+        ax_3d.axis('equal')
+        
         plt.show()
 
         # Enter main loop
@@ -79,7 +90,8 @@ class obstaclePublisher():
             
     
 
-    def draw_ellipsoid_centered(self, numPoints=50, a_temp = [0,0], draw_sfObs = False, x0=[0,0,0]):
+    def draw_ellipsoid_centered(self, numPoints=20, a_temp = [0,0], draw_sfObs = False, x0=[0,0,0]):
+        self.numPoints = numPoints 
         if self.dim == 2:
             theta = np.linspace(-pi,pi, num=numPoints)
             #numPoints = numPoints
@@ -118,24 +130,13 @@ class obstaclePublisher():
         if self.dim == 2:
             x_obs[0,:] = (a[0]*np.cos(theta)).reshape((1,-1))
             x_obs[1,:] = (np.copysign(a[1], theta)*(1 - np.cos(theta)**(2*p[0]))**(1./(2.*p[1]))).reshape((1,-1))
-            #x_obs[2,:] = (np.zeros((x_obs[1,:].shape))).reshape((1, -1))
         else:
             # TODO --- next line probs wrong. Power of zero...
-            
-            #x_obs(1,:,n) = a(1,:).*cos(phi).*cos(theta);
-            x_temp = a[0]*np.cos(phi)*np.cos(theta)
-            x_obs[0,:] = x_temp.reshape((1,-1))
-            print('temp', x_temp)
-            # x_obs(2,:,n) = a(2,:).*sign(theta).*cos(phi).*(1 - 0.^(2.*p(3,:)) - cos(theta).^(2.*p(1,:))).^(1./(2.*p(2,:)));
-            x_obs[1,:] = (np.copysign(a[1], theta)*(1 - np.cos(theta)**(2*p[0]))**(1./(2.*p[1]))).reshape((1,-1))
-            #x_obs[1,:] =  (a[1]*np.copysign(1, (theta))*np.cos(phi)*(1 - 0 **(2*p[2]) - np.cos(theta)**(2*p[0])) ** (1/(2*p[1])) ).reshape((1, -1))
-            print('temp', x_temp)
-
-            # x_obs(3,:,n) = a(3,:).*sign(phi).*(1 - (sign(theta).*cos(phi).*(1 - 0.^(2.*p(3,:)) - cos(theta).^(2.*p(1,:))).^(1./(2.*p(2,:)))).^(2.*p(2,:)) - (cos(phi).*cos(theta)).^(2.*p(1,:))).^(1./(2.*p(3,:)));
+            x_obs[0,:] = (a[0]*np.cos(phi)*np.cos(theta)).reshape((1,-1))
+            x_obs[1,:] = (a[1]*np.copysign(1, theta)*np.cos(phi)*(1 - np.cos(theta)**(2*p[0]))**(1./(2.*p[1]))).reshape((1,-1))
             x_obs[2,:] = (a[2]*np.copysign(1,phi)*(1 - (np.copysign(1,theta)*np.cos(phi)*(1 - 0 ** (2*p[2]) - np.cos(theta)**(2*p[0]))**(1/(2**p[1])))**(2*p[1]) - (np.cos(phi)*np.cos(theta)) ** (2*p[0])) ** (1/(2*p[2])) ).reshape((1,-1))
         
         # TODO for outside function - only sf is returned, remove x_obs to speed up
-        
         x_obs_sf = np.zeros((self.dim,numPoints))
         if hasattr(self, 'sf'):
             if type(self.sf) == int or type(self.sf) == float:
@@ -163,8 +164,8 @@ def compute_rotMat(th_r=0, d=3):
 
     # rotating the query point into the obstacle frame of reference
     if d == 2 :
-        rotMatrix = np.array([[cos(th_r), -sin(th_r)],
-                              [sin(th_r),  cos(th_r)]])
+        rotMatrix = np.array([[np.cos(th_r), -np.sin(th_r)],
+                              [np.sin(th_r),  np.cos(th_r)]])
     elif d == 3:
         # Use quaternions?!
         R_x = np.array([[1, 0, 0,],
@@ -191,11 +192,12 @@ def talker():
     return 0
 
 
-if __name__ == '__main__':
-    try:
+#if __name__ == '__main__':
+if True:
+    #try:
         a=[1,2,3]
         theta_r=[1,2,3]
         
         obstaclePublisher()
-    except rospy.ROSInterruptException:
-        pass
+    #except rospy.ROSInterruptException:
+    #pass
