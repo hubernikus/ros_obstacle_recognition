@@ -23,10 +23,21 @@ void obj1_callback(const geometry_msgs::PoseStamped& pose_robo1)
   //obs1_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link_obs1"));
 
   static tf::TransformBroadcaster mocap_br;
-  transform.setOrigin(tf::Vector3(0.0,0.0,-1.2));
-  tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0,0); 
+  //transform.setOrigin(tf::Vector3(0.0,0.0,-1.2));
+  transform.setOrigin(tf::Vector3(pose_robo1.pose.position.x,
+				  pose_robo1.pose.position.y,
+				  pose_robo1.pose.position.z
+				  ) );
+  //tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0,0); 
+  tf::Quaternion quat = tf::Quaternion(pose_robo1.pose.orientation.x,
+				       pose_robo1.pose.orientation.y,
+				       pose_robo1.pose.orientation.z,
+				       pose_robo1.pose.orientation.w);
+
+  //transform.setRotation(quat);
+  //quat = pose_robo1.pose.orientation;
   transform.setRotation(quat);
-  mocap_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "mocap_world"));
+  mocap_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "mocap_world","world"));
 
   ROS_INFO("I heard something");
 }
@@ -40,7 +51,8 @@ int main(int argc, char **argv)
 
   ros::Publisher tf_world_pub = n.advertise<std_msgs::String>("tf_world", 1000);
 
-  ros::Subscriber sub = n.subscribe("/object_1/pose", 10, &obj1_callback);
+  //ros::Subscriber sub = n.subscribe("/object_1/pose", 10, &obj1_callback);
+  ros::Subscriber sub = n.subscribe("/robot/pose", 10, &obj1_callback);
 
   static tf::TransformBroadcaster obs2_br;
 

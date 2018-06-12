@@ -47,21 +47,35 @@ class obstaclePublisher():
         rate = rospy.Rate(20) # Frequency
 
         # Create publishers
-        elli_pub = rospy.Publisher('ellipse1_out', PolygonStamped, queue_size=5)
-        obs_pub = rospy.Publisher('obstacle1', Obstacle, queue_size=5)
+        elli_pub = rospy.Publisher('ellipse2_out', PolygonStamped, queue_size=5)
+        obs_pub = rospy.Publisher('obstacle2', Obstacle, queue_size=5)
         br_obs_pub = tf.TransformBroadcaster()
         
 
         
 
         # Create listener
-        pose_sub = rospy.Subscriber("object_1/pose", PoseStamped, self.callback)
+        pose_sub = rospy.Subscriber("object_2/pose", PoseStamped, self.callback)
 
         self.pose_ellipse = Pose()
         self.pose_ellipse.position = Point(0.5,0,0)
 
-        self.timeOld = rospy.Time.now()
+        # fig = plt.figure()
+
+        # ax_3d = fig.add_subplot(111, projection='3d')
+
+        # ax_3d.plot_surface(np.reshape([self.x_obs[i][0] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+        #                    np.reshape([self.x_obs[i][1] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+        #                    np.reshape([self.x_obs[i][2] for i in range(len(self.x_obs))], (self.numPoints,-1)), alpha=0.4 )
         
+        # ax_3d.set_xlabel('x1')
+        # ax_3d.set_ylabel('x2')
+        # ax_3d.set_zlabel('x3')
+
+        # ax_3d.axis('equal')
+        
+        # plt.show()
+
         # Enter main loop
         #while False:
         while not rospy.is_shutdown():
@@ -72,23 +86,30 @@ class obstaclePublisher():
             # Obstacle for algorithm
             ell_poly = PolygonStamped()
             ell_poly.header.stamp = rospy.Time.now()
-            ell_poly.header.frame_id = 'object_1/base1_link'
+            ell_poly.header.frame_id = 'object_2/base_link'
 
             # Publish new frame to new frame
+            # print('pose x', self.pose_ellipse.position.x)
+            # br_obs_pub.sendTransform(
+            #     (self.pose_ellipse.position.x, self.pose_ellipse.position.y, self.pose_ellipse.position.z),
+            #                          self.pose_ellipse.orientation,
+            #                          rospy.Time.now(),
+            #                          "obstacle_1",
+            #                          "mocap_world")
+            
             x_obs = self.x_obs
+            #x_obs = x_obs + np.tile([self.pose_ellipse.position.x,self.pose_ellipse.position.y,self.pose_ellipse.position.z],(self.resolution,1))
+                            
+            #x_obs = np.tile(q, (self.resolution,1) ) * np.vstack(np.zeros((self.resolution,1)), x_obs) * np.tile(q, (self.resolution,1))
             ell_poly.polygon.points = [Point32(self.x_obs[i][0], self.x_obs[i][1], self.x_obs[i][2]) for i in range(len(self.x_obs))]
+            #ell_poly.polygon.points = [Point32(x_obs[i][0], x_obs[i][1], x_obs[i][2]) for i in range(len(x_obs))]
+            
             elli_pub.publish(ell_poly)
 
             # Obstacle for algorithm
-            # TODO -- for constant shape, keep those factors out of loop
             obstacle = Obstacle()
             obstacle.header = ell_poly.header
-            obstacle.x0 = self.pos_ellipse
-            obstacle.th_r = self.th_r
-            obstacle.a = self.a
-            obstacle.gamma = self.gamma
-            obstacle.sf = self.sf
-            
+            obstacle.x0 = [1,0,1]
             obstacle.th_r = [0,0,0]
             
             obs_pub.publish(obstacle)
@@ -96,38 +117,7 @@ class obstaclePublisher():
             rate.sleep()  # Wait zzzz*
 
     def callback(self, msg): # Subscriber callback
-        
-        time = rospy.Time.now()
-        
-        pos_ellipse_old = self.pos_ellipse
-        self.pos_ellipse = msg.pose.position
-        
-        dt = time-self.timeOld
-
-        deltaX = np.array([self.pos_ellipse.x - pos_ellipse_old.x,
-                           self.pos_ellipse.y - pos_ellipse_old.y,
-                           self.pos_ellipse.z - pos_ellipse_old.z]
-        dx_new = deltaX/dt
-        
-        k_dx = 0.6 # kalman filter constant
-        self.dx = k_dx*self.dx + (1-k_dx)*dx_new
-
-
-        th_r_old = self.th_r
-        deltaTH = tf.transformations.euler_from_quaternion(msg.pose.orientation)
-        
-        #deltaTH = getEulerZYX
-        for ii in range(3):
-            if deltaTH[ii] > pi:
-                deltaTH[ii] = 2*pi - deltaTH[ii]
-        w_new = deltaTH/dt
-
-        k_w = 0.6 # kalman filter constant
-        self.w = k_w*self.w + (1-k_w)*w_nw
-
-        self.pose
-        self.timeOld = time
-
+        self.pose_ellipse = msg.pose
 
     def draw_ellipsoid_centered(self, numPoints=32, a_temp = [0,0], draw_sfObs = False, x0=[0,0,0]):
         self.numPoints = numPoints 
@@ -253,8 +243,9 @@ def compute_rotMat(th_r=0, d=3):
         
 def talker():
     return 0
- 
-if __name__ == '__main__':
+
+#if __name__ == '__main__':
+if True:
     try:
         a=[0.35,0.10,0.10]
         th_r=[0,0,0]
@@ -264,4 +255,3 @@ if __name__ == '__main__':
         obstaclePublisher(a=a, th_r=th_r, p=p)
     except rospy.ROSInterruptException:
         pass
- 
