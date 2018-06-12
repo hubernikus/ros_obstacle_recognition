@@ -17,15 +17,16 @@ void obj1_callback(const geometry_msgs::PoseStamped& pose_robo1)
  
   float aa;
   std::cout << "hello you" << aa << "me too \n";
-//aa = pose_robo1->pose.position.x;
-//transform.setOrigin(pose_robo1->pose.position);
-//transform.orientation = pose_robo1.Pose.orientation;
-//obs1_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link_obs1"));
+  //aa = pose_robo1->pose.position.x;
+  //transform.setOrigin(pose_robo1->pose.position);
+  //transform.orientation = pose_robo1.Pose.orientation;
+  //obs1_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "base_link_obs1"));
 
-static tf::TransformBroadcaster mocap_br;
-transform.setOrigin(tf::Vector3(0.0,0.0,0.0));
-transform.setRotation(tf::Quaternion(1.0,0.0,0.0,0.0));
-mocap_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "mocap_world"));
+  static tf::TransformBroadcaster mocap_br;
+  transform.setOrigin(tf::Vector3(0.0,0.0,-1.2));
+  tf::Quaternion quat = tf::createQuaternionFromRPY(0, 0,0); 
+  transform.setRotation(quat);
+  mocap_br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "mocap_world"));
 
   ROS_INFO("I heard something");
 }

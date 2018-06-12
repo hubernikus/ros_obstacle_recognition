@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+import pdb; pdb.set_trace()#!/usr/bin/env python
 
 '''
 obstacle publisher class
