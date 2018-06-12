@@ -1,19 +1,19 @@
-import pdb; pdb.set_trace()#!/usr/bin/env python
+#!/usr/bin/env python
 
-'''
-obstacle publisher class
+#'''
+#obstacle publisher class
+#
+#@author lukashuber
+#@date 2018-06-08
+#
+#'''
 
-@author lukashuber
-@date 2018-06-08
+#import matplotlib.pyplot as plt
+#from mpl_toolkits.mplot3d import Axes3D
 
-'''
-
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-#import rospy
-#from geometry_msgs.msg import PolygonStamped, Point32
-from matplotlib.patches import Polygon
+import rospy
+from geometry_msgs.msg import PolygonStamped, Point32
+#from matplotlib.patches import Polygon
 
 import numpy as np
 from math import pi, floor
@@ -21,7 +21,7 @@ from math import pi, floor
 import warnings
 
 class obstaclePublisher():
-    def __init__(self, a=[1,1,4], p=[1,1,1], x0=[0,0,0], th_r=[0,2,0], sf=1, sigma=1):
+    def __init__(self, a=[1,1,1], p=[1,1,1], x0=[0,0,0], th_r=[0,2,0], sf=1, sigma=1):
         # Initialize variables
         self.a=a
         self.p = p
@@ -40,39 +40,34 @@ class obstaclePublisher():
         self.draw_ellipsoid_centered()
 
         # Initialize node
-        #rospy.init_node('ellipse_publisher', anonymous=True)
-        #rate = rospy.Rate(3) # Frequency
+        rospy.init_node('ellipse_publisher', anonymous=True)
+        rate = rospy.Rate(2) # Frequency
 
         # Create publishers
-        #elli_pub = rospy.Publisher('ellipse_out', PolygonStamped, queue_size=10)
+        elli_pub = rospy.Publisher('ellipse_out', PolygonStamped, queue_size=5)
 
-        fig = plt.figure()
+        #fig = plt.figure()
 
-        ax_3d = fig.add_subplot(111, projection='3d')
-        print('x_obs_0', self.x_obs[0])
-        print('x_obs_1', self.x_obs[1])
-        print('x_obs_1', self.x_obs[1])
-        #ax_3d.plot([self.x_obs[i][0] for i in range(len(self.x_obs))],
-        #[self.x_obs[i][1] for i in range(len(self.x_obs))],
-        #[self.x_obs[i][2] for i in range(len(self.x_obs))])
-        #ax_3d.plot_surface([self.x_obs[i][0] for i in range(len(self.x_obs))],
-                           #[self.x_obs[i][1] for i in range(len(self.x_obs))],
-                           #[self.x_obs[i][2] for i in range(len(self.x_obs))])
+        # ax_3d = fig.add_subplot(111, projection='3d')
+        # print('x_obs_0', self.x_obs[0])
+        # print('x_obs_1', self.x_obs[1])
+        # print('x_obs_1', self.x_obs[1])
+        #                    #[self.x_obs[i][2] for i in range(len(self.x_obs))])
 
-        ax_3d.plot_surface(np.reshape([self.x_obs[i][0] for i in range(len(self.x_obs))], (self.numPoints,-1)),
-                           np.reshape([self.x_obs[i][1] for i in range(len(self.x_obs))], (self.numPoints,-1)),
-                           np.reshape([self.x_obs[i][2] for i in range(len(self.x_obs))], (self.numPoints,-1)), alpha=0.4 )
+        # ax_3d.plot_surface(np.reshape([self.x_obs[i][0] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+        #                    np.reshape([self.x_obs[i][1] for i in range(len(self.x_obs))], (self.numPoints,-1)),
+        #                    np.reshape([self.x_obs[i][2] for i in range(len(self.x_obs))], (self.numPoints,-1)), alpha=0.4 )
         
-        ax_3d.set_xlabel('x1')
-        ax_3d.set_ylabel('x2')
-        ax_3d.set_zlabel('x3')
+        # ax_3d.set_xlabel('x1')
+        # ax_3d.set_ylabel('x2')
+        # ax_3d.set_zlabel('x3')
 
-        ax_3d.axis('equal')
+        # ax_3d.axis('equal')
         
-        plt.show()
+        # plt.show()
 
         # Enter main loop
-        while False: #not rospy.is_shutdown():
+        while not rospy.is_shutdown():
             # Loginfo concerning publishing
             rospy.loginfo("Publishing ellipse %s" % rospy.get_time())
 
@@ -194,10 +189,10 @@ def talker():
 
 #if __name__ == '__main__':
 if True:
-    #try:
-        a=[1,2,3]
-        theta_r=[1,2,3]
+    try:
+        a=[1,1,1]
+        theta_r=[1,2,0]
         
         obstaclePublisher()
-    #except rospy.ROSInterruptException:
-    #pass
+    except rospy.ROSInterruptException:
+        pass
