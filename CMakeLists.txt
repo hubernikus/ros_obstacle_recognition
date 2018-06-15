@@ -17,8 +17,8 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 
 # -----
-# find_package(catkin REQUIRED COMPONENTS roslaunch)
-# roslaunch_add_file_check(launch)
+#find_package(catkin REQUIRED COMPONENTS roslaunch)
+#roslaunch_add_file_check(launch)
 
 # if (CATKIN_ENABLE_TESTING)
 #   find_package(roslaunch REQUIRED)
@@ -56,10 +56,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## Generate messages in the 'msg' folder
 #----
-# add_message_files(
-#   FILES
-#   Obstacle.msg
-#)
+add_message_files(
+  FILES
+  Obstacle.msg
+)
 
 # add_message_files(
 #   FILES
@@ -88,10 +88,10 @@ find_package(catkin REQUIRED COMPONENTS
 #   std_msgs  # Or other packages containing msgs
 #)
 
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs  # Or other packages containing msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
