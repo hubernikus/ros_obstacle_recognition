@@ -1,0 +1,8 @@
+<launch>
+  <node name="transform_creater" pkg="obstacle_recognition" type="transform_creator" ns="collision"/>
+  <node name="obstacle_publisher" pkg="obstacle_recognition" type="obstacle_publisher.py" ns='collision'/>
+  <node name="obstacle_publisher_2" pkg="obstacle_recognition" type="obstacle_publisher_2.py" ns='collision'/>
+  <!-- <node name="trajectory_planner" pkg="obstacle_recognition" type="trajectory_planer.py" ns='collision'/> -->
+  <!-- TODO add node for attractor controll and e -->
+  <!-- <node name="trajectory_planner" pkg="obstacle_recognition" type="trajectory_planer.py" ns='collision'/> -->
+</launch>
